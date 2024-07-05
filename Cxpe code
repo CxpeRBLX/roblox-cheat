@@ -1,26 +1,35 @@
+-- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Camera = game.Workspace.CurrentCamera
 
+-- Create GUI
 local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer:WaitForChild("PlayerGui"))
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 200, 0, 100)
-Frame.Position = UDim2.new(0, 10, 0, 10)
-Frame.BackgroundTransparency = 0.5
-Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+Frame.Size = UDim2.new(0, 200, 0, 120)
+Frame.Position = UDim2.new(0.5, -100, 0, 10)
+Frame.BackgroundTransparency = 0.2
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
 
 local EspButton = Instance.new("TextButton", Frame)
 EspButton.Size = UDim2.new(1, 0, 0.5, 0)
 EspButton.Position = UDim2.new(0, 0, 0, 0)
-EspButton.Text = "Toggle ESP"
-EspButton.BackgroundColor3 = Color3.new(1, 1, 1)
+EspButton.Text = "ESP: OFF"
+EspButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+EspButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+EspButton.Font = Enum.Font.Gotham
+EspButton.TextSize = 14
 
 local AimbotButton = Instance.new("TextButton", Frame)
 AimbotButton.Size = UDim2.new(1, 0, 0.5, 0)
 AimbotButton.Position = UDim2.new(0, 0, 0.5, 0)
-AimbotButton.Text = "Toggle Aimbot"
-AimbotButton.BackgroundColor3 = Color3.new(1, 1, 1)
+AimbotButton.Text = "Aimbot: OFF"
+AimbotButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AimbotButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+AimbotButton.Font = Enum.Font.Gotham
+AimbotButton.TextSize = 14
 
 local espEnabled = false
 local aimbotEnabled = false
@@ -28,6 +37,9 @@ local aimbotEnabled = false
 EspButton.MouseButton1Click:Connect(function()
     espEnabled = not espEnabled
     EspButton.Text = espEnabled and "ESP: ON" or "ESP: OFF"
+    if not espEnabled then
+        removeBoxes()
+    end
 end)
 
 AimbotButton.MouseButton1Click:Connect(function()
@@ -35,6 +47,7 @@ AimbotButton.MouseButton1Click:Connect(function()
     AimbotButton.Text = aimbotEnabled and "Aimbot: ON" or "Aimbot: OFF"
 end)
 
+-- Functions for ESP and Aimbot
 local function isObstructed(origin, target)
     local raycastParams = RaycastParams.new()
     raycastParams.FilterDescendantsInstances = {Players.LocalPlayer.Character, origin.Parent}
@@ -50,9 +63,9 @@ local function findClosestVisibleEnemy()
     local localPlayer = Players.LocalPlayer
 
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= localPlayer and player.Team ~= localPlayer.Team and player.Character then
-            local head = player.Character:FindFirstChild("Head")
-            if head and not isObstructed(Camera, head) then
+        if player ~= localPlayer and player.Team ~= localPlayer.Team and player.Character and player.Character:FindFirstChild("Head") then
+            local head = player.Character.Head
+            if not isObstructed(Camera, head) then
                 local distance = (head.Position - myPosition).Magnitude
                 if distance < shortestDistance then
                     closestPlayer, shortestDistance = player, distance
@@ -64,18 +77,20 @@ local function findClosestVisibleEnemy()
 end
 
 local function createBox(player)
-    local head = player.Character.Head
+    local head = player.Character:FindFirstChild("Head")
+    if not head then return end
     local billboardGui = Instance.new("BillboardGui")
     billboardGui.Adornee = head
     billboardGui.Size = UDim2.new(4, 0, 5, 0)
     billboardGui.AlwaysOnTop = true
     billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+    billboardGui.Name = "ESP_BillboardGui"
 
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 1, 0)
     frame.BorderSizePixel = 2
     frame.BackgroundTransparency = 1
-    frame.BorderColor3 = Color3.new(1, 0, 0)
+    frame.BorderColor3 = Color3.fromRGB(255, 0, 0)
 
     frame.Parent = billboardGui
     billboardGui.Parent = player.Character
@@ -85,7 +100,7 @@ local function removeBoxes()
     for _, player in ipairs(Players:GetPlayers()) do
         if player.Character then
             for _, child in ipairs(player.Character:GetChildren()) do
-                if child:IsA("BillboardGui") then
+                if child.Name == "ESP_BillboardGui" then
                     child:Destroy()
                 end
             end
@@ -98,16 +113,16 @@ local function shoot()
 end
 
 local function update()
-    removeBoxes()
     if espEnabled then
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= Players.LocalPlayer and player.Team ~= Players.LocalPlayer.Team and player.Character then
-                local head = player.Character:FindFirstChild("Head")
-                if head then
+                if not player.Character:FindFirstChild("ESP_BillboardGui") then
                     createBox(player)
                 end
             end
         end
+    else
+        removeBoxes()
     end
 
     if aimbotEnabled then
@@ -116,9 +131,11 @@ local function update()
             local head = closestPlayer.Character.Head
             local targetPosition = head.Position
             local cameraLookVector = (targetPosition - Camera.CFrame.p).unit
-            local currentLookVector = Camera.CFrame.lookVector
+            local currentLookVector = Camera.CFrame.LookVector
 
             if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) and cameraLookVector:Dot(currentLookVector) > 0.99 then
+                -- Aimbot action
+                Camera.CFrame = CFrame.new(Camera.CFrame.p, targetPosition)
                 shoot()
             end
         end

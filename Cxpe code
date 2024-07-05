@@ -2,25 +2,24 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local Camera = game.Workspace.CurrentCamera
+local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
 -- Variables
 local espEnabled = false
 local aimbotEnabled = false
-local menuVisible = true
 local aimbotDistance = 500
 local espColor = Color3.fromRGB(255, 0, 0) -- Default ESP color
 
 -- Create GUI
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 300, 0, 220)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -110)
+MainFrame.Size = UDim2.new(0, 250, 0, 150)
+MainFrame.Position = UDim2.new(0.5, -125, 0.5, -75)
 MainFrame.BackgroundTransparency = 0.3
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.BorderSizePixel = 0
-MainFrame.Visible = menuVisible
+MainFrame.Visible = true
 MainFrame.ZIndex = 10
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 
@@ -37,52 +36,52 @@ Title.Text = "Arsenal Cheat Menu"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 22
+Title.TextSize = 20
 
 -- Create Buttons
 local EspButton = Instance.new("TextButton", MainFrame)
-EspButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+EspButton.Size = UDim2.new(0.8, 0, 0.2, 0)
 EspButton.Position = UDim2.new(0.1, 0, 0.25, 0)
 EspButton.Text = "ESP: OFF"
 EspButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-EspButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+EspButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 EspButton.BorderSizePixel = 1
 EspButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
 EspButton.Font = Enum.Font.Gotham
-EspButton.TextSize = 18
+EspButton.TextSize = 16
 
 local AimbotButton = Instance.new("TextButton", MainFrame)
-AimbotButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-AimbotButton.Position = UDim2.new(0.1, 0, 0.45, 0)
+AimbotButton.Size = UDim2.new(0.8, 0, 0.2, 0)
+AimbotButton.Position = UDim2.new(0.1, 0, 0.5, 0)
 AimbotButton.Text = "Aimbot: OFF"
 AimbotButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-AimbotButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+AimbotButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 AimbotButton.BorderSizePixel = 1
 AimbotButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
 AimbotButton.Font = Enum.Font.Gotham
-AimbotButton.TextSize = 18
+AimbotButton.TextSize = 16
 
 local AimbotDistanceSlider = Instance.new("TextButton", MainFrame)
-AimbotDistanceSlider.Size = UDim2.new(0.8, 0, 0.15, 0)
-AimbotDistanceSlider.Position = UDim2.new(0.1, 0, 0.65, 0)
+AimbotDistanceSlider.Size = UDim2.new(0.8, 0, 0.2, 0)
+AimbotDistanceSlider.Position = UDim2.new(0.1, 0, 0.75, 0)
 AimbotDistanceSlider.Text = "Aimbot Distance: 500"
 AimbotDistanceSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
-AimbotDistanceSlider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+AimbotDistanceSlider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 AimbotDistanceSlider.BorderSizePixel = 1
 AimbotDistanceSlider.BorderColor3 = Color3.fromRGB(100, 100, 100)
 AimbotDistanceSlider.Font = Enum.Font.Gotham
-AimbotDistanceSlider.TextSize = 18
+AimbotDistanceSlider.TextSize = 16
 
 local EspColorButton = Instance.new("TextButton", MainFrame)
-EspColorButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-EspColorButton.Position = UDim2.new(0.1, 0, 0.85, 0)
+EspColorButton.Size = UDim2.new(0.8, 0, 0.2, 0)
+EspColorButton.Position = UDim2.new(0.1, 0, 0.25, 0)
 EspColorButton.Text = "Change ESP Color"
 EspColorButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-EspColorButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+EspColorButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 EspColorButton.BorderSizePixel = 1
 EspColorButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
 EspColorButton.Font = Enum.Font.Gotham
-EspColorButton.TextSize = 18
+EspColorButton.TextSize = 16
 
 -- Functions for ESP and Aimbot
 local function isObstructed(origin, target)
@@ -94,120 +93,5 @@ local function isObstructed(origin, target)
     return result and result.Instance ~= nil
 end
 
-local function findClosestVisibleEnemy()
-    local closestPlayer, shortestDistance = nil, aimbotDistance
-    local myPosition = Camera.CFrame.p
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team and player.Character and player.Character:FindFirstChild("Head") then
-            local head = player.Character.Head
-            if not isObstructed(Camera, head) then
-                local distance = (head.Position - myPosition).Magnitude
-                if distance < shortestDistance then
-                    closestPlayer, shortestDistance = player, distance
-                end
-            end
-        end
-    end
-    return closestPlayer
-end
-
-local function createBox(player)
-    local head = player.Character:FindFirstChild("Head")
-    if not head then return end
-    local billboardGui = Instance.new("BillboardGui")
-    billboardGui.Adornee = head
-    billboardGui.Size = UDim2.new(4, 0, 5, 0)
-    billboardGui.AlwaysOnTop = true
-    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
-    billboardGui.Name = "ESP_BillboardGui"
-
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.BorderSizePixel = 2
-    frame.BackgroundTransparency = 1
-    frame.BorderColor3 = espColor
-
-    frame.Parent = billboardGui
-    billboardGui.Parent = player.Character
-end
-
-local function removeBoxes()
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player.Character then
-            for _, child in ipairs(player.Character:GetChildren()) do
-                if child.Name == "ESP_BillboardGui" then
-                    child:Destroy()
-                end
-            end
-        end
-    end
-end
-
-local function shoot()
-    -- Assuming shooting functionality is handled here; this is a placeholder
-    local tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
-    if tool and tool:IsA("Tool") then
-        tool:Activate()
-    end
-end
-
-local function update()
-    if espEnabled then
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team and player.Character then
-                if not player.Character:FindFirstChild("ESP_BillboardGui") then
-                    createBox(player)
-                end
-            end
-        end
-    else
-        removeBoxes()
-    end
-
-    if aimbotEnabled then
-        local closestPlayer = findClosestVisibleEnemy()
-        if closestPlayer then
-            local head = closestPlayer.Character.Head
-            local targetPosition = head.Position
-            local cameraLookVector = (targetPosition - Camera.CFrame.p).unit
-            local currentLookVector = Camera.CFrame.LookVector
-
-            if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) and cameraLookVector:Dot(currentLookVector) > 0.99 then
-                Camera.CFrame = CFrame.new(Camera.CFrame.p, targetPosition)
-                shoot()
-            end
-        end
-    end
-end
-
--- Update loop
-RunService.RenderStepped:Connect(update)
-
--- Menu Interactions
-UserInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.RightShift then
-        menuVisible = not menuVisible
-        MainFrame.Visible = menuVisible
-    end
-end)
-
-EspButton.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled
-    EspButton.Text = espEnabled and "ESP: ON" or "ESP: OFF"
-end)
-
-AimbotButton.MouseButton1Click:Connect(function()
-    aimbotEnabled = not aimbotEnabled
-    AimbotButton.Text = aimbotEnabled and "Aimbot: ON" or "Aimbot: OFF"
-end)
-
-AimbotDistanceSlider.MouseButton1Click:Connect(function()
-    aimbotDistance = aimbotDistance + 100
-    AimbotDistanceSlider.Text = "Aimbot Distance: " .. aimbotDistance
-end)
-
-EspColorButton.MouseButton1Click:Connect(function()
-    espColor = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
-    EspColorButton.Text = "Change ESP Color: " .. espColor:ToHex()
-end)
+local function createESP(player)
+    if

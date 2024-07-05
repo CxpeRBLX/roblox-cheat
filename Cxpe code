@@ -50,7 +50,6 @@ EspButton.BorderSizePixel = 1
 EspButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
 EspButton.Font = Enum.Font.Gotham
 EspButton.TextSize = 18
-EspButton.TextStrokeTransparency = 0.5
 
 local AimbotButton = Instance.new("TextButton", MainFrame)
 AimbotButton.Size = UDim2.new(0.8, 0, 0.15, 0)
@@ -62,7 +61,6 @@ AimbotButton.BorderSizePixel = 1
 AimbotButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
 AimbotButton.Font = Enum.Font.Gotham
 AimbotButton.TextSize = 18
-AimbotButton.TextStrokeTransparency = 0.5
 
 local AimbotDistanceSlider = Instance.new("TextButton", MainFrame)
 AimbotDistanceSlider.Size = UDim2.new(0.8, 0, 0.15, 0)
@@ -74,7 +72,6 @@ AimbotDistanceSlider.BorderSizePixel = 1
 AimbotDistanceSlider.BorderColor3 = Color3.fromRGB(100, 100, 100)
 AimbotDistanceSlider.Font = Enum.Font.Gotham
 AimbotDistanceSlider.TextSize = 18
-AimbotDistanceSlider.TextStrokeTransparency = 0.5
 
 local EspColorButton = Instance.new("TextButton", MainFrame)
 EspColorButton.Size = UDim2.new(0.8, 0, 0.15, 0)
@@ -86,7 +83,6 @@ EspColorButton.BorderSizePixel = 1
 EspColorButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
 EspColorButton.Font = Enum.Font.Gotham
 EspColorButton.TextSize = 18
-EspColorButton.TextStrokeTransparency = 0.5
 
 -- Functions for ESP and Aimbot
 local function isObstructed(origin, target)
@@ -150,8 +146,10 @@ end
 
 local function shoot()
     -- Assuming shooting functionality is handled here; this is a placeholder
-    LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    LocalPlayer.Character.Humanoid:Move(Vector3.new(), true)
+    local tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
+    if tool and tool:IsA("Tool") then
+        tool:Activate()
+    end
 end
 
 local function update()
@@ -183,9 +181,10 @@ local function update()
     end
 end
 
+-- Update loop
 RunService.RenderStepped:Connect(update)
 
--- Toggle Menu Visibility with Right Shift Key
+-- Menu Interactions
 UserInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.RightShift then
         menuVisible = not menuVisible
@@ -193,37 +192,22 @@ UserInputService.InputBegan:Connect(function(input)
     end
 end)
 
--- Toggle ESP
 EspButton.MouseButton1Click:Connect(function()
     espEnabled = not espEnabled
     EspButton.Text = espEnabled and "ESP: ON" or "ESP: OFF"
 end)
 
--- Toggle Aimbot
 AimbotButton.MouseButton1Click:Connect(function()
     aimbotEnabled = not aimbotEnabled
     AimbotButton.Text = aimbotEnabled and "Aimbot: ON" or "Aimbot: OFF"
 end)
 
--- Adjust Aimbot Distance
 AimbotDistanceSlider.MouseButton1Click:Connect(function()
     aimbotDistance = aimbotDistance + 100
-    if aimbotDistance > 1000 then aimbotDistance = 100 end
     AimbotDistanceSlider.Text = "Aimbot Distance: " .. aimbotDistance
 end)
 
--- Change ESP Color
 EspColorButton.MouseButton1Click:Connect(function()
     espColor = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player.Character then
-            local esp = player.Character:FindFirstChild("ESP_BillboardGui")
-            if esp then
-                esp.Frame.BorderColor3 = espColor
-            end
-        end
-    end
+    EspColorButton.Text = "Change ESP Color: " .. espColor:ToHex()
 end)
-
--- Initial setup
-AimbotDistanceSlider.Text = "Aimbot Distance: " .. aimbotDistance

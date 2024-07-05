@@ -8,35 +8,68 @@ local Camera = game.Workspace.CurrentCamera
 local espEnabled = false
 local aimbotEnabled = false
 local menuVisible = true
-local aimbotDistance = 1000 -- Maximum distance for aimbot to work
+local aimbotDistance = 500 -- Maximum distance for aimbot to work
+local espColor = Color3.fromRGB(255, 0, 0) -- ESP box color
 
 -- Create GUI
 local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer:WaitForChild("PlayerGui"))
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 200, 0, 120)
-Frame.Position = UDim2.new(0.5, -100, 0, 10)
-Frame.BackgroundTransparency = 0.2
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BorderSizePixel = 0
-Frame.Visible = menuVisible
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 350, 0, 220)
+MainFrame.Position = UDim2.new(0.5, -175, 0, 10)
+MainFrame.BackgroundTransparency = 0.2
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = menuVisible
+MainFrame.ZIndex = 10
 
-local EspButton = Instance.new("TextButton", Frame)
-EspButton.Size = UDim2.new(1, 0, 0.5, 0)
-EspButton.Position = UDim2.new(0, 0, 0, 0)
+-- Create Header
+local Header = Instance.new("Frame", MainFrame)
+Header.Size = UDim2.new(1, 0, 0.2, 0)
+Header.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Header.BorderSizePixel = 0
+
+local Title = Instance.new("TextLabel", Header)
+Title.Size = UDim2.new(1, 0, 1, 0)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.Text = "Arsenal Cheat Menu"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+
+-- Create Buttons
+local EspButton = Instance.new("TextButton", MainFrame)
+EspButton.Size = UDim2.new(0.8, 0, 0.2, 0)
+EspButton.Position = UDim2.new(0.1, 0, 0.25, 0)
 EspButton.Text = "ESP: OFF"
 EspButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 EspButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+EspButton.BorderSizePixel = 1
+EspButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
 EspButton.Font = Enum.Font.Gotham
-EspButton.TextSize = 14
+EspButton.TextSize = 16
 
-local AimbotButton = Instance.new("TextButton", Frame)
-AimbotButton.Size = UDim2.new(1, 0, 0.5, 0)
-AimbotButton.Position = UDim2.new(0, 0, 0.5, 0)
+local AimbotButton = Instance.new("TextButton", MainFrame)
+AimbotButton.Size = UDim2.new(0.8, 0, 0.2, 0)
+AimbotButton.Position = UDim2.new(0.1, 0, 0.55, 0)
 AimbotButton.Text = "Aimbot: OFF"
 AimbotButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 AimbotButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+AimbotButton.BorderSizePixel = 1
+AimbotButton.BorderColor3 = Color3.fromRGB(100, 100, 100)
 AimbotButton.Font = Enum.Font.Gotham
-AimbotButton.TextSize = 14
+AimbotButton.TextSize = 16
+
+local AimbotDistanceSlider = Instance.new("TextButton", MainFrame)
+AimbotDistanceSlider.Size = UDim2.new(0.8, 0, 0.2, 0)
+AimbotDistanceSlider.Position = UDim2.new(0.1, 0, 0.85, 0)
+AimbotDistanceSlider.Text = "Aimbot Distance: 500"
+AimbotDistanceSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
+AimbotDistanceSlider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+AimbotDistanceSlider.BorderSizePixel = 1
+AimbotDistanceSlider.BorderColor3 = Color3.fromRGB(100, 100, 100)
+AimbotDistanceSlider.Font = Enum.Font.Gotham
+AimbotDistanceSlider.TextSize = 16
 
 -- Functions for ESP and Aimbot
 local function isObstructed(origin, target)
@@ -74,14 +107,14 @@ local function createBox(player)
     billboardGui.Adornee = head
     billboardGui.Size = UDim2.new(4, 0, 5, 0)
     billboardGui.AlwaysOnTop = true
-    billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
     billboardGui.Name = "ESP_BillboardGui"
 
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 1, 0)
     frame.BorderSizePixel = 2
     frame.BackgroundTransparency = 1
-    frame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+    frame.BorderColor3 = espColor
 
     frame.Parent = billboardGui
     billboardGui.Parent = player.Character
@@ -141,7 +174,7 @@ RunService.RenderStepped:Connect(update)
 UserInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.RightShift then
         menuVisible = not menuVisible
-        Frame.Visible = menuVisible
+        MainFrame.Visible = menuVisible
     end
 end)
 
@@ -149,12 +182,27 @@ end)
 EspButton.MouseButton1Click:Connect(function()
     espEnabled = not espEnabled
     EspButton.Text = espEnabled and "ESP: ON" or "ESP: OFF"
-    if not espEnabled then
-        removeBoxes()
-    end
 end)
 
 AimbotButton.MouseButton1Click:Connect(function()
     aimbotEnabled = not aimbotEnabled
     AimbotButton.Text = aimbotEnabled and "Aimbot: ON" or "Aimbot: OFF"
 end)
+
+AimbotDistanceSlider.MouseButton1Click:Connect(function()
+    -- Simple click handler to demonstrate interaction; you can implement a slider or input box for the distance
+    aimbotDistance = aimbotDistance + 50
+    AimbotDistanceSlider.Text = "Aimbot Distance: " .. aimbotDistance
+end)
+
+-- Add functionality to adjust the aimbot distance
+AimbotDistanceSlider.MouseEnter:Connect(function()
+    -- Change background color on hover
+    AimbotDistanceSlider.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+end)
+
+AimbotDistanceSlider.MouseLeave:Connect(function()
+    -- Reset background color
+    AimbotDistanceSlider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+end)
+

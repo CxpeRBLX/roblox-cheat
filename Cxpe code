@@ -3,27 +3,28 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Camera = game.Workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
 
 -- Variables
 local espEnabled = false
 local aimbotEnabled = false
 local menuVisible = true
-local aimbotDistance = 500 -- Maximum distance for aimbot to work
-local espColor = Color3.fromRGB(255, 0, 0) -- ESP box color
+local aimbotDistance = 500
+local espColor = Color3.fromRGB(255, 0, 0) -- Default ESP color
 
 -- Create GUI
-local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer:WaitForChild("PlayerGui"))
+local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 400, 0, 300)
-MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+MainFrame.Size = UDim2.new(0, 300, 0, 220)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -110)
 MainFrame.BackgroundTransparency = 0.3
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Visible = menuVisible
 MainFrame.ZIndex = 10
-MainFrame.BorderSizePixel = 0
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 
--- Create Header
+-- Header
 local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0.2, 0)
 Header.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -90,7 +91,7 @@ EspColorButton.TextStrokeTransparency = 0.5
 -- Functions for ESP and Aimbot
 local function isObstructed(origin, target)
     local raycastParams = RaycastParams.new()
-    raycastParams.FilterDescendantsInstances = {Players.LocalPlayer.Character, origin.Parent}
+    raycastParams.FilterDescendantsInstances = {LocalPlayer.Character, origin.Parent}
     raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
     raycastParams.IgnoreWater = true
     local result = workspace:Raycast(origin.Position, target.Position - origin.Position, raycastParams)
@@ -100,10 +101,9 @@ end
 local function findClosestVisibleEnemy()
     local closestPlayer, shortestDistance = nil, aimbotDistance
     local myPosition = Camera.CFrame.p
-    local localPlayer = Players.LocalPlayer
 
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= localPlayer and player.Team ~= localPlayer.Team and player.Character and player.Character:FindFirstChild("Head") then
+        if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team and player.Character and player.Character:FindFirstChild("Head") then
             local head = player.Character.Head
             if not isObstructed(Camera, head) then
                 local distance = (head.Position - myPosition).Magnitude
@@ -149,14 +149,15 @@ local function removeBoxes()
 end
 
 local function shoot()
-    -- This function can be customized based on how the actual shooting is handled
-    print("Shooting at the enemy player's head!")
+    -- Assuming shooting functionality is handled here; this is a placeholder
+    LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+    LocalPlayer.Character.Humanoid:Move(Vector3.new(), true)
 end
 
 local function update()
     if espEnabled then
         for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= Players.LocalPlayer and player.Team ~= Players.LocalPlayer.Team and player.Character then
+            if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team and player.Character then
                 if not player.Character:FindFirstChild("ESP_BillboardGui") then
                     createBox(player)
                 end
@@ -175,7 +176,6 @@ local function update()
             local currentLookVector = Camera.CFrame.LookVector
 
             if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) and cameraLookVector:Dot(currentLookVector) > 0.99 then
-                -- Aimbot action
                 Camera.CFrame = CFrame.new(Camera.CFrame.p, targetPosition)
                 shoot()
             end
@@ -183,7 +183,6 @@ local function update()
     end
 end
 
--- Event for updating the aimbot and ESP
 RunService.RenderStepped:Connect(update)
 
 -- Toggle Menu Visibility with Right Shift Key
